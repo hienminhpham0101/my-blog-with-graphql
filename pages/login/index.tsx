@@ -1,4 +1,4 @@
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { useRouter } from "next/dist/client/router";
 import React, { useState } from "react";
 import { LOGIN_USER } from "../queries/queries";
@@ -54,9 +54,6 @@ export default function Login() {
                   </g>
                 </g>
               </svg>
-            </div>
-            <div className="text-2xl text-indigo-800 tracking-wide ml-2 font-semibold">
-              blockify
             </div>
           </div>
         </div>
