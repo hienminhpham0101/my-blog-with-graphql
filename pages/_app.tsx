@@ -11,27 +11,27 @@ import "nprogress/nprogress.css";
 import "tailwindcss/tailwind.css";
 import { getTokenFromLocalStorage } from "./auth/services/localStorageServices";
 import Layout from "./components/layout/layout";
+import UserWrapper from "./contexts/authContext";
 
+const httpLink = createHttpLink({
+  uri: "http://127.0.0.1:8000/graphql/",
+});
+
+const authLink = setContext((_, { headers }) => {
+  const token = getTokenFromLocalStorage();
+  return {
+    headers: {
+      ...headers,
+      Authorization: token ? `JWT ${token}` : "",
+    },
+  };
+});
+
+export const client = new ApolloClient({
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache(),
+});
 function MyApp({ Component, pageProps }: AppProps) {
-  const httpLink = createHttpLink({
-    uri: "http://127.0.0.1:8000/graphql/",
-  });
-
-  const authLink = setContext((_, { headers }) => {
-    const token = getTokenFromLocalStorage();
-    return {
-      headers: {
-        ...headers,
-        Authorization: token ? `JWT ${token}` : "",
-      },
-    };
-  });
-
-  const client = new ApolloClient({
-    link: authLink.concat(httpLink),
-    cache: new InMemoryCache(),
-  });
-
   const TopProgressBar = dynamic(
     () => {
       return import("./components/topProgressBar/topProgressBar");
@@ -42,11 +42,13 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={client}>
       <TopProgressBar />
-      <div className="max-w-7xl mx-auto">
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </div>
+      <UserWrapper>
+        <div className="max-w-7xl mx-auto">
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </div>
+      </UserWrapper>
     </ApolloProvider>
   );
 }

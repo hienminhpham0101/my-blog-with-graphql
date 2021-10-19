@@ -1,5 +1,5 @@
 import { gql } from "graphql-tag";
-const GET_CURRENT_USER = gql`
+export const GET_CURRENT_USER = gql`
   query {
     me {
       username
@@ -8,7 +8,7 @@ const GET_CURRENT_USER = gql`
   }
 `;
 
-const LOGIN_USER = gql`
+export const LOGIN_USER = gql`
   mutation LoginMutation($username: String!, $password: String!) {
     tokenAuth(username: $username, password: $password) {
       token
@@ -16,4 +16,22 @@ const LOGIN_USER = gql`
   }
 `;
 
-export { GET_CURRENT_USER, LOGIN_USER };
+export const GET_POSTS = gql`
+  query {
+    posts {
+      title
+      content
+      slug
+      voteUp
+      voteDown
+      viewCount
+      ownerUserId {
+        username
+      }
+      categoryId {
+        name
+      }
+      createdAt
+    }
+  }
+`;

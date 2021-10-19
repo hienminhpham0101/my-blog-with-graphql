@@ -1,10 +1,12 @@
-import { Popover, Transition } from "@headlessui/react";
-import { MenuIcon } from "@heroicons/react/outline";
+import { Menu, Popover, Transition } from "@headlessui/react";
+import { ChevronDownIcon, MenuIcon } from "@heroicons/react/outline";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { Fragment } from "react";
 import { Logo } from "../../../shared/icons/icons";
+import { setTokenToLocalStorage } from "../../auth/services/localStorageServices";
+import { User, useUserContext } from "../../contexts/authContext";
 import { login, menu } from "../../routes/routes";
 
 interface IProps {
@@ -13,6 +15,14 @@ interface IProps {
 
 export default function Layout({ children }: IProps) {
   const router = useRouter();
+  const { profile, setProfile } = useUserContext();
+
+  const handleLogout = () => {
+    router.push("/login");
+    setProfile({} as User);
+    setTokenToLocalStorage("");
+  };
+
   return (
     <React.Fragment>
       <Popover className="relative bg-white">
@@ -48,13 +58,54 @@ export default function Layout({ children }: IProps) {
               })}
             </Popover.Group>
             <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
-              {login.map((item, index) => {
-                return (
-                  <Link key={index} href={item.path}>
-                    <a className={item.className}>{item.title}</a>
-                  </Link>
-                );
-              })}
+              {profile?.me?.username ? (
+                <div>
+                  <Menu as="div" className="relative inline-block text-left">
+                    <div>
+                      <Menu.Button className="inline-flex justify-center w-full rounded-md px-4 py-2 bg-white text-sm font-medium text-gray-700">
+                        <span className="font-semibold cursor-pointer">
+                          Welcome {profile?.me?.username}
+                        </span>
+                        <ChevronDownIcon
+                          className="-mr-1 ml-2 h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </Menu.Button>
+                    </div>
+
+                    <Transition
+                      as={Fragment}
+                      enter="transition ease-out duration-50"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-50"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Menu.Items className="origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="py-1">
+                          <Menu.Item>
+                            <div
+                              className="block px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                              onClick={handleLogout}
+                            >
+                              Log out
+                            </div>
+                          </Menu.Item>
+                        </div>
+                      </Menu.Items>
+                    </Transition>
+                  </Menu>
+                </div>
+              ) : (
+                login.map((item, index) => {
+                  return (
+                    <Link key={index} href={item.path}>
+                      <a className={item.className}>{item.title}</a>
+                    </Link>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
@@ -90,21 +141,27 @@ export default function Layout({ children }: IProps) {
                   })}
                 </div>
                 <div>
-                  <a
-                    href="#"
-                    className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    Sign up
-                  </a>
-                  <p className="mt-6 text-center text-base font-medium text-gray-500">
-                    Existing customer?{" "}
-                    <a
-                      href="#"
-                      className="text-indigo-600 hover:text-indigo-500"
-                    >
-                      Sign in
-                    </a>
-                  </p>
+                  {profile?.me?.username ? (
+                    <span>Wellcome {profile?.me?.username}</span>
+                  ) : (
+                    <React.Fragment>
+                      <a
+                        href="#"
+                        className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                      >
+                        Sign up
+                      </a>
+                      <p className="mt-6 text-center text-base font-medium text-gray-500">
+                        Existing customer?{" "}
+                        <a
+                          href="#"
+                          className="text-indigo-600 hover:text-indigo-500"
+                        >
+                          Sign in
+                        </a>
+                      </p>
+                    </React.Fragment>
+                  )}
                 </div>
               </div>
             </div>

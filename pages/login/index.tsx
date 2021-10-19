@@ -4,24 +4,24 @@ import React, { useState } from "react";
 import { LOGIN_USER } from "../queries/queries";
 
 export default function Login() {
-  const route = useRouter();
+  const router = useRouter();
   const [formState, setFormState] = useState({
     username: "",
     password: "",
   });
 
-  const [login, { called, loading, data, error }] = useMutation(LOGIN_USER, {
+  const [login, { loading, error }] = useMutation(LOGIN_USER, {
     variables: {
       username: formState.username,
       password: formState.password,
     },
     onCompleted: ({ tokenAuth }) => {
       localStorage.setItem("token", tokenAuth.token);
-      route.push("/");
+      router.push("/", undefined, { shallow: true });
     },
   });
-  if (loading) return <>Loading</>;
-  if (error) return <>{error.message}</>;
+  if (loading) return <p>Redirecting...</p>;
+  if (error) return <p>{error.message}</p>;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +74,7 @@ export default function Login() {
                   className="w-full text-lg py-2 border-b border-gray-300 focus:outline-none focus:border-indigo-500"
                   type="text"
                   name="username"
+                  required
                   onChange={(e) =>
                     setFormState({
                       ...formState,
@@ -101,6 +102,7 @@ export default function Login() {
                   className="w-full text-lg py-2 border-b border-gray-300 focus:outline-none focus:border-indigo-500"
                   type="password"
                   name="password"
+                  required
                   onChange={(e) =>
                     setFormState({
                       ...formState,
